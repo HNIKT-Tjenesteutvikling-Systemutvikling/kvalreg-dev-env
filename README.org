@@ -1,7 +1,5 @@
 # Custom Tomcat and MySQL Flake
 
-This flake provides specific versions of Apache Tomcat 9 and MySQL 8.4 for use in your Nix projects.
-
 *** Overview
 
 This flake overrides the standard Tomcat and MySQL packages from nixpkgs to provide specific versions:
@@ -128,60 +126,6 @@ To get the correct SHA256 hash for a new version:
 #+END_SRC
 
 Replace the URL with the appropriate one for your package version.
-
-*** Tomcat Usage Notes
-
-Tomcat doesn't provide a simple command-line executable like MySQL. To interact with Tomcat:
-
-**** Checking the version
-#+BEGIN_SRC shell
-  java -cp $(nix build --print-out-paths .#tomcat)/lib/catalina.jar org.apache.catalina.util.ServerInfo
-#+END_SRC
-
-**** Starting Tomcat
-#+BEGIN_SRC shell
-  $(nix build --print-out-paths .#tomcat)/bin/startup.sh
-#+END_SRC
-
-**** Stopping Tomcat
-#+BEGIN_SRC shell
-  $(nix build --print-out-paths .#tomcat)/bin/shutdown.sh
-#+END_SRC
-
-**** Creating a Tomcat wrapper
-
-For convenience, you can create a wrapper script in your project:
-
-#+BEGIN_SRC shell
-  #!/bin/sh
-  TOMCAT_HOME=$(nix build --print-out-paths github:yourusername/custom-tomcat-mysql#tomcat)
-
-  case "$1" in
-      version|--version|-v)
-  	java -cp $TOMCAT_HOME/lib/catalina.jar org.apache.catalina.util.ServerInfo
-  	;;
-      start)
-  	$TOMCAT_HOME/bin/startup.sh
-  	;;
-      stop)
-  	$TOMCAT_HOME/bin/shutdown.sh
-  	;;
-      run)
-  	$TOMCAT_HOME/bin/catalina.sh run
-  	;;
-      ,*)
-  	echo "Usage: tomcat {version|start|stop|run}"
-  	;;
-  esac
-#+END_SRC
-
-*** MySQL Usage
-
-The MySQL package provides the standard mysql command. To check the version:
-
-#+BEGIN_SRC shell
-  $(nix build --print-out-paths .#mysql)/bin/mysql --version
-#+END_SRC
 
 *** Compatibility Notes
 
