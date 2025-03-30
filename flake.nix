@@ -12,6 +12,21 @@
         pkgs = import nixpkgs-unstable {
           inherit system;
         };
+
+        javaVersion = 21;
+        overlays = [
+          (self: super: rec {
+            jdk = super."jdk${toString javaVersion}";
+            maven = super.maven.override {
+              inherit jdk;
+            };
+          })
+        ];
+
+        pkgsWithOverlays = import nixpkgs-unstable {
+          inherit system;
+          overlays = overlays;
+        };
       in
       {
         packages = {
@@ -31,6 +46,8 @@
             };
           });
         };
+        java = pkgsWithOverlays."jdk${toString javaVersion}";
+        maven = pkgsWithOverlays.maven;
 
         devShell = pkgs.mkShell {
           buildInputs = [
@@ -38,7 +55,11 @@
             self.packages.${system}.mysql
           ];
           shellHook = ''
-            echo "Tomcat ${self.packages.${system}.tomcat.version} and MySQL ${self.packages.${system}.mysql.version} environment"
+            echo "Development environment with:"
+            echo "- Tomcat ${self.packages.${system}.tomcat.version}"
+            echo "- MySQL ${self.packages.${system}.mysql.version}"
+            echo "- Java ${toString javaVersion}"
+            echo "- Maven (configured with Java ${toString javaVersion})"
             echo "Type 'exit' to leave this shell"
           '';
         };
