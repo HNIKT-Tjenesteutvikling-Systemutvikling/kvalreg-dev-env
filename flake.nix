@@ -2,30 +2,24 @@
   description = "A flake for specific versions of Tomcat and MySQL";
 
   inputs = {
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs-unstable, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs-unstable {
-          inherit system;
-        };
-
         javaVersion = 21;
-        overlays = [
-          (self: super: rec {
-            jdk = super."jdk${toString javaVersion}";
-            maven = super.maven.override {
-              inherit jdk;
-            };
-          })
-        ];
-
-        pkgsWithOverlays = import nixpkgs-unstable {
+        pkgs = import nixpkgs {
           inherit system;
-          overlays = overlays;
+          overlays = [
+            (self: super: rec {
+              jdk = super."jdk${toString javaVersion}";
+              maven = super.maven.override {
+                jdk_headless = jdk;
+              };
+            })
+          ];
         };
       in
       {
@@ -45,16 +39,17 @@
               sha256 = "19c202zh5i9vpccb4sj44hqqawdcab51phs9a8438i4993vhwagv";
             };
           });
-          java = pkgsWithOverlays."jdk${toString javaVersion}";
-          maven = pkgs.maven.override (old: {
-            jdk = pkgsWithOverlays."jdk${toString javaVersion}";
-          });
+
+          java = pkgs.jdk;
+          maven = pkgs.maven;
         };
 
         devShell = pkgs.mkShell {
           buildInputs = [
             self.packages.${system}.tomcat
             self.packages.${system}.mysql
+            self.packages.${system}.java
+            self.packages.${system}.maven
           ];
           shellHook = ''
             echo "Development environment with:"
