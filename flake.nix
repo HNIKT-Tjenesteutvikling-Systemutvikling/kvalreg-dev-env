@@ -46,7 +46,9 @@
             };
           });
           java = pkgsWithOverlays."jdk${toString javaVersion}";
-          maven = pkgsWithOverlays.maven;
+          maven = pkgs.maven.override (old: {
+            jdk = pkgsWithOverlays."jdk${toString javaVersion}";
+          });
         };
 
         devShell = pkgs.mkShell {
