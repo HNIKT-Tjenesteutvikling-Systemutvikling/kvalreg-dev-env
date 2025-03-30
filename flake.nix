@@ -45,9 +45,9 @@
               sha256 = "19c202zh5i9vpccb4sj44hqqawdcab51phs9a8438i4993vhwagv";
             };
           });
+          java = pkgsWithOverlays."jdk${toString javaVersion}";
+          maven = pkgsWithOverlays.maven;
         };
-        java = pkgsWithOverlays."jdk${toString javaVersion}";
-        maven = pkgsWithOverlays.maven;
 
         devShell = pkgs.mkShell {
           buildInputs = [
