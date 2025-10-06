@@ -1,15 +1,21 @@
 {
-  description = "A flake for specific versions of Tomcat and MySQL";
+  description = "A flake for specific versions of Tomcat, MySQL, and PostgreSQL";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
-        javaVersion = 21;
+        javaVersion = 25;
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
@@ -40,6 +46,8 @@
             };
           });
 
+          postgresql = pkgs.postgresql_18;
+
           java = pkgs.jdk;
           maven = pkgs.maven;
         };
@@ -48,6 +56,7 @@
           buildInputs = [
             self.packages.${system}.tomcat
             self.packages.${system}.mysql
+            self.packages.${system}.postgresql
             self.packages.${system}.java
             self.packages.${system}.maven
           ];
@@ -55,10 +64,12 @@
             echo "Development environment with:"
             echo "- Tomcat ${self.packages.${system}.tomcat.version}"
             echo "- MySQL ${self.packages.${system}.mysql.version}"
+            echo "- PostgreSQL ${self.packages.${system}.postgresql.version}"
             echo "- Java ${toString javaVersion}"
             echo "- Maven (configured with Java ${toString javaVersion})"
             echo "Type 'exit' to leave this shell"
           '';
         };
-      });
+      }
+    );
 }
