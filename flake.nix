@@ -15,7 +15,7 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        javaVersion = 24;
+        javaVersion = 25;
         pkgs = import nixpkgs {
           inherit system;
           overlays = [
