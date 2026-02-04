@@ -4,6 +4,9 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    kvalreg-authorization-server = {
+      url = "git+ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-authorization-server.git";
+    };
   };
 
   outputs =
@@ -11,6 +14,7 @@
       self,
       nixpkgs,
       flake-utils,
+      kvalreg-authorization-server,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -50,6 +54,7 @@
 
           java = pkgs.jdk;
           maven = pkgs.maven;
+          kvalreg-authorization-server = kvalreg-authorization-server.packages.${system}.default;
         };
 
         devShell = pkgs.mkShell {
