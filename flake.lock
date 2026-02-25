@@ -18,6 +18,24 @@
         "type": "github"
       }
     },
+    "flake-parts_2": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib_2"
+      },
+      "locked": {
+        "lastModified": 1736143030,
+        "narHash": "sha256-+hu54pAoLDEZT9pjHlqL9DNzWz0NbUn8NEAHP7PQPzU=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "b905f6fc23a9051a6e1b741e1438dbfc0634c6de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -55,6 +73,25 @@
         "url": "ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-authorization-server.git"
       }
     },
+    "kvalreg-person-details-provider": {
+      "inputs": {
+        "flake-parts": "flake-parts_2",
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1772021517,
+        "narHash": "sha256-+InQY3w9BlXtpvd4jszAXIs1AhlK4egRLHHVw0cB2Us=",
+        "ref": "refs/heads/master",
+        "rev": "cf430608896ef490019dc19d73d1c2ea401aec7c",
+        "revCount": 433,
+        "type": "git",
+        "url": "ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-person-details-provider.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-person-details-provider.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1764230294,
@@ -86,7 +123,35 @@
         "type": "github"
       }
     },
+    "nixpkgs-lib_2": {
+      "locked": {
+        "lastModified": 1735774519,
+        "narHash": "sha256-CewEm1o2eVAnoqb6Ml+Qi9Gg/EfNAxbRx1lANGVyoLI=",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/e9b51731911566bbf7e4895475a87fe06961de0b.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/e9b51731911566bbf7e4895475a87fe06961de0b.tar.gz"
+      }
+    },
     "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1736010017,
+        "narHash": "sha256-pMttboU4LraZezi3tc7NiHODd4eKziFRb2a4s4WO8Ms=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "a1945f760a8fe019a4d753808de424dcd4e5b3cf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1759381078,
         "narHash": "sha256-gTrEEp5gEspIcCOx9PD8kMaF1iEmfBcTbO0Jag2QhQs=",
@@ -106,7 +171,8 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "kvalreg-authorization-server": "kvalreg-authorization-server",
-        "nixpkgs": "nixpkgs_2"
+        "kvalreg-person-details-provider": "kvalreg-person-details-provider",
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "systems": {
