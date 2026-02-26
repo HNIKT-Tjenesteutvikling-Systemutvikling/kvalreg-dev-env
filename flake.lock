@@ -79,11 +79,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1772021517,
-        "narHash": "sha256-+InQY3w9BlXtpvd4jszAXIs1AhlK4egRLHHVw0cB2Us=",
+        "lastModified": 1772096641,
+        "narHash": "sha256-tgZWTmor8lRq58Fyo7Yi5n67W8bMj4NouY6hmp0B9+4=",
         "ref": "refs/heads/master",
-        "rev": "cf430608896ef490019dc19d73d1c2ea401aec7c",
-        "revCount": 433,
+        "rev": "ad85853978cc2679f1afbc17d6708e3047d7c914",
+        "revCount": 434,
         "type": "git",
         "url": "ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-person-details-provider.git"
       },
