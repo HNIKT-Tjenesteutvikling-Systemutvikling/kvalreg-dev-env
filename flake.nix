@@ -5,7 +5,6 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     kvalreg-authorization-server.url = "git+ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-authorization-server.git";
-    kvalreg-person-details-provider.url = "git+ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-person-details-provider.git";
   };
 
   outputs =
@@ -13,7 +12,6 @@
     , nixpkgs
     , flake-utils
     , kvalreg-authorization-server
-    , kvalreg-person-details-provider
     ,
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -32,12 +30,7 @@
           ];
         };
 
-        pdpStream = kvalreg-person-details-provider.packages.${system}.nixDockerImage;
-        pdpAppEnv = kvalreg-person-details-provider.lib.appEnv;
-        pdpImageName = kvalreg-person-details-provider.lib.dockerImageName;
-        pdpImageTag = kvalreg-person-details-provider.lib.dockerImageTag;
         authServer = kvalreg-authorization-server.packages.${system}.default;
-
         authServerRun = pkgs.writeShellScriptBin "auth-server-run" ''
           set -euo pipefail
 
@@ -96,56 +89,6 @@
           tail -f "$LOG_FILE"
         '';
 
-        # ── PDP Docker scripts ───────────────────────────────────────────────
-
-        pdpDockerRun = pkgs.writeShellScriptBin "pdp-docker-run" ''
-          set -euo pipefail
-
-          IMAGE_NAME="${pdpImageName}"
-          IMAGE_TAG="${pdpImageTag}"
-          IMAGE_REF="$IMAGE_NAME:$IMAGE_TAG"
-
-          echo "Loading $IMAGE_REF into Docker..."
-          ${pdpStream} | docker load
-
-          docker rm -f "$IMAGE_NAME" 2>/dev/null || true
-
-          echo "Starting $IMAGE_REF container in background..."
-          docker run -d \
-            --name "$IMAGE_NAME" \
-            --restart unless-stopped \
-            --network host \
-            ${
-              pkgs.lib.concatStringsSep " \\\n            " (
-                pkgs.lib.mapAttrsToList (k: v: "-e ${k}=${v}") pdpAppEnv
-              )
-            } \
-            "$IMAGE_REF"
-
-          echo "$IMAGE_NAME is running on port ${pdpAppEnv.PDP_APP_PORT}"
-        '';
-
-        pdpDockerStop = pkgs.writeShellScriptBin "pdp-docker-stop" ''
-          set -euo pipefail
-          echo "Stopping ${pdpImageName}..."
-          docker rm -f "${pdpImageName}" 2>/dev/null || true
-          echo "Done."
-        '';
-
-        pdpDockerLogs = pkgs.writeShellScriptBin "pdp-docker-logs" ''
-          set -euo pipefail
-          IMAGE_NAME="${pdpImageName}"
-
-          if ! docker ps --format "{{.Names}}" | grep -q "^$IMAGE_NAME$"; then
-            echo "Error: container '$IMAGE_NAME' is not running."
-            echo "Start it with: pdp-docker-run"
-            exit 1
-          fi
-
-          echo "Following logs for $IMAGE_NAME (Ctrl-C to stop)..."
-          docker logs -f --tail 100 "$IMAGE_NAME"
-        '';
-
       in
       {
         packages = {
@@ -173,9 +116,6 @@
             authServerRun
             authServerStop
             authServerLogs
-            pdpDockerRun
-            pdpDockerStop
-            pdpDockerLogs
             ;
         };
 
@@ -192,18 +132,6 @@
             type = "app";
             program = "${authServerLogs}/bin/auth-server-logs";
           };
-          pdp-docker-run = {
-            type = "app";
-            program = "${pdpDockerRun}/bin/pdp-docker-run";
-          };
-          pdp-docker-stop = {
-            type = "app";
-            program = "${pdpDockerStop}/bin/pdp-docker-stop";
-          };
-          pdp-docker-logs = {
-            type = "app";
-            program = "${pdpDockerLogs}/bin/pdp-docker-logs";
-          };
         };
 
         devShell = pkgs.mkShell {
@@ -216,9 +144,6 @@
             authServerRun
             authServerStop
             authServerLogs
-            pdpDockerRun
-            pdpDockerStop
-            pdpDockerLogs
           ];
           shellHook = ''
             echo "Development environment with:"
@@ -232,11 +157,6 @@
             echo "  auth-server-run   — start authorization server in background"
             echo "  auth-server-stop  — stop authorization server"
             echo "  auth-server-logs  — follow authorization server logs"
-            echo ""
-            echo "PDP commands:"
-            echo "  pdp-docker-run    — load and start PDP container"
-            echo "  pdp-docker-stop   — stop PDP container"
-            echo "  pdp-docker-logs   — follow PDP container logs"
             echo ""
             echo "Type 'exit' to leave this shell"
           '';
