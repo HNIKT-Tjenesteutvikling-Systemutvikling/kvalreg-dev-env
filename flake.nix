@@ -109,38 +109,36 @@
           GITHUB_TOKEN=""
           GITHUB_USERNAME=""
 
-          if command -v xmlstarlet >/dev/null 2>&1; then
-            GITHUB_TOKEN="$(xmlstarlet sel \
-              -N m="http://maven.apache.org/SETTINGS/1.0.0" \
-              -t -v "/m:settings/m:servers/m:server[m:id='github']/m:password" \
-              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
-            GITHUB_USERNAME="$(xmlstarlet sel \
-              -N m="http://maven.apache.org/SETTINGS/1.0.0" \
-              -t -v "/m:settings/m:servers/m:server[m:id='github']/m:username" \
-              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
-          fi
+          GITHUB_TOKEN="$(${pkgs.xmlstarlet}/bin/xmlstarlet sel \
+            -N m="http://maven.apache.org/SETTINGS/1.0.0" \
+            -t -v "/m:settings/m:servers/m:server[m:id='github']/m:password" \
+            "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
+          GITHUB_USERNAME="$(${pkgs.xmlstarlet}/bin/xmlstarlet sel \
+            -N m="http://maven.apache.org/SETTINGS/1.0.0" \
+            -t -v "/m:settings/m:servers/m:server[m:id='github']/m:username" \
+            "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
 
-          if [ -z "''${GITHUB_TOKEN}" ] && command -v xmllint >/dev/null 2>&1; then
-            GITHUB_TOKEN="$(xmllint --xpath \
+          if [ -z "''${GITHUB_TOKEN}" ]; then
+            GITHUB_TOKEN="$(${pkgs.libxml2}/bin/xmllint --xpath \
               "string(/*[local-name()='settings']/*[local-name()='servers']/*[local-name()='server'][*[local-name()='id']='github']/*[local-name()='password']/text())" \
               "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
           fi
 
-          if [ -z "''${GITHUB_USERNAME}" ] && command -v xmllint >/dev/null 2>&1; then
-            GITHUB_USERNAME="$(xmllint --xpath \
+          if [ -z "''${GITHUB_USERNAME}" ]; then
+            GITHUB_USERNAME="$(${pkgs.libxml2}/bin/xmllint --xpath \
               "string(/*[local-name()='settings']/*[local-name()='servers']/*[local-name()='server'][*[local-name()='id']='github']/*[local-name()='username']/text())" \
               "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
           fi
 
           if [ -n "''${GITHUB_TOKEN}" ]; then
-            echo "export MVN_PCKGS=\"''${GITHUB_TOKEN}\""   # stdout — picked up by eval
+            echo "export MVN_PCKGS=\"''${GITHUB_TOKEN}\""
             echo "Found token, exported as MVN_PCKGS." >&2
           else
             echo "Warning: Could not extract token from ''${MVN_SETTINGS_FILE}." >&2
           fi
 
           if [ -n "''${GITHUB_USERNAME}" ]; then
-            echo "export MVN_USER=\"''${GITHUB_USERNAME}\""  # stdout — picked up by eval
+            echo "export MVN_USER=\"''${GITHUB_USERNAME}\""
             echo "Found username, exported as MVN_USER: ''${GITHUB_USERNAME}." >&2
           else
             echo "Warning: No username found in ''${MVN_SETTINGS_FILE}." >&2
