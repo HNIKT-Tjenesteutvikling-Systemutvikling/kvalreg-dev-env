@@ -89,6 +89,64 @@
           tail -f "$LOG_FILE"
         '';
 
+        setMvnToken = pkgs.writeShellScriptBin "set-mvn-token" ''
+          set -euo pipefail
+
+          if [ -n "''${MVN_PCKGS:-}" ]; then
+            echo "Info: MVN_PCKGS already set from environment. Skipping settings.xml lookup." >&2
+            exit 0
+          fi
+
+          MVN_SETTINGS_FILE="''${HOME}/.m2/settings.xml"
+
+          if [ ! -f "''${MVN_SETTINGS_FILE}" ]; then
+            echo "Info: Maven settings file not found at ''${MVN_SETTINGS_FILE}." >&2
+            exit 0
+          fi
+
+          echo "Attempting to set MVN_PCKGS from ''${MVN_SETTINGS_FILE}..." >&2
+
+          GITHUB_TOKEN=""
+          GITHUB_USERNAME=""
+
+          if command -v xmlstarlet >/dev/null 2>&1; then
+            GITHUB_TOKEN="$(xmlstarlet sel \
+              -N m="http://maven.apache.org/SETTINGS/1.0.0" \
+              -t -v "/m:settings/m:servers/m:server[m:id='github']/m:password" \
+              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
+            GITHUB_USERNAME="$(xmlstarlet sel \
+              -N m="http://maven.apache.org/SETTINGS/1.0.0" \
+              -t -v "/m:settings/m:servers/m:server[m:id='github']/m:username" \
+              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
+          fi
+
+          if [ -z "''${GITHUB_TOKEN}" ] && command -v xmllint >/dev/null 2>&1; then
+            GITHUB_TOKEN="$(xmllint --xpath \
+              "string(/*[local-name()='settings']/*[local-name()='servers']/*[local-name()='server'][*[local-name()='id']='github']/*[local-name()='password']/text())" \
+              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
+          fi
+
+          if [ -z "''${GITHUB_USERNAME}" ] && command -v xmllint >/dev/null 2>&1; then
+            GITHUB_USERNAME="$(xmllint --xpath \
+              "string(/*[local-name()='settings']/*[local-name()='servers']/*[local-name()='server'][*[local-name()='id']='github']/*[local-name()='username']/text())" \
+              "''${MVN_SETTINGS_FILE}" 2>/dev/null || true)"
+          fi
+
+          if [ -n "''${GITHUB_TOKEN}" ]; then
+            echo "export MVN_PCKGS=\"''${GITHUB_TOKEN}\""   # stdout — picked up by eval
+            echo "Found token, exported as MVN_PCKGS." >&2
+          else
+            echo "Warning: Could not extract token from ''${MVN_SETTINGS_FILE}." >&2
+          fi
+
+          if [ -n "''${GITHUB_USERNAME}" ]; then
+            echo "export MVN_USER=\"''${GITHUB_USERNAME}\""  # stdout — picked up by eval
+            echo "Found username, exported as MVN_USER: ''${GITHUB_USERNAME}." >&2
+          else
+            echo "Warning: No username found in ''${MVN_SETTINGS_FILE}." >&2
+          fi
+        '';
+
       in
       {
         packages = {
@@ -116,6 +174,7 @@
             authServerRun
             authServerStop
             authServerLogs
+            setMvnToken
             ;
         };
 
