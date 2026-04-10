@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    kvalreg-authorization-server.url = "git+ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-authorization-server.git";
+    kvalreg-authorization-server.url = "git+ssh://git@github.com/hnikt-tjenesteutvikling-systemutvikling/kvalreg-authorization-server.git?shallow=0";
   };
 
   outputs =
