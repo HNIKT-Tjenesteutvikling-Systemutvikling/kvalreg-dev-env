@@ -8,11 +8,11 @@
   };
 
   outputs =
-    { self
-    , nixpkgs
-    , flake-utils
-    , kvalreg-authorization-server
-    ,
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      kvalreg-authorization-server,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -156,13 +156,7 @@
             };
           });
 
-          mysql = pkgs.mysql84.overrideAttrs (oldAttrs: {
-            version = "8.4.4";
-            src = pkgs.fetchurl {
-              url = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.4.tar.gz";
-              sha256 = "19c202zh5i9vpccb4sj44hqqawdcab51phs9a8438i4993vhwagv";
-            };
-          });
+          mysql = pkgs.mysql84;
 
           postgresql = pkgs.postgresql_18;
           java = pkgs.jdk;
