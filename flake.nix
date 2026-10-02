@@ -14,7 +14,13 @@
       flake-utils,
       kvalreg-authorization-server,
     }:
-    flake-utils.lib.eachDefaultSystem (
+    let
+      tomcatVersion = "9.0.122";
+    in
+    {
+      lib = { inherit tomcatVersion; };
+    }
+    // flake-utils.lib.eachDefaultSystem (
       system:
       let
         javaVersion = 24;
@@ -149,10 +155,10 @@
       {
         packages = {
           tomcat = pkgs.tomcat9.overrideAttrs (oldAttrs: {
-            version = "9.0.102";
+            version = tomcatVersion;
             src = pkgs.fetchurl {
-              url = "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.102/bin/apache-tomcat-9.0.102.tar.gz";
-              sha256 = "11s776n5gblyw064kxnci6v4l6kxjvka83kbr34238akdnqs7q13";
+              url = "https://archive.apache.org/dist/tomcat/tomcat-9/v${tomcatVersion}/bin/apache-tomcat-${tomcatVersion}.tar.gz";
+              sha256 = "144qhbw7gh19yppacmw4mqj0blkscjn96kmirqxx4l0l5r8pxv6q";
             };
           });
 
